@@ -23,7 +23,7 @@ def generate_poem(prompt_text):
                         prompt=prompt_text,
                         max_tokens=150,  # Adjust max_tokens as needed
                         temperature=0.7,  # Adjust temperature as needed)
-    return response.choices[0].text.strip()
+            return response.choices[0].text.strip()
 
 if st.button('Submit'):
             if user_input:
