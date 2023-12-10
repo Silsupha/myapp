@@ -19,6 +19,17 @@ st.title("Text Analysis and Transformation App")
 
 input_text = st.text_area("Enter text for analysis:", "")
 
+def analyze_and_transform_text(input_text):
+    # Use the GPT-3.5-turbo engine to analyze and transform text
+    response = client.chat.completions.create(
+        model="text-davinci-002",
+        prompt=f"This is a text analysis and transformation task:\n\n{input_text}\n\nTransform the negative sentiment to positive.",
+        temperature=0.7,
+        max_tokens=150
+    )
+    transformed_text = response.choices[0].text.strip()
+    return transformed_text
+
 if st.button("Analyze and Transform"):
     if input_text:
         # Call the function to analyze and transform text
@@ -39,15 +50,6 @@ if st.button("Analyze and Transform"):
             key="download_csv"
             )
 
-def analyze_and_transform_text(input_text):
-    # Use the GPT-3.5-turbo engine to analyze and transform text
-    response = client.chat.completions.create(
-        model="text-davinci-002",
-        prompt=f"This is a text analysis and transformation task:\n\n{input_text}\n\nTransform the negative sentiment to positive.",
-        temperature=0.7,
-        max_tokens=150
-    )
-    transformed_text = response.choices[0].text.strip()
-    return transformed_text
+
     
 
