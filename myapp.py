@@ -1,42 +1,53 @@
 import streamlit as st
 import openai
-import pandas as pd
 
-# Get the API key from the sidebar called OpenAI API key
-user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
+# Set your OpenAI API key
+openai.api_key = "YOUR_OPENAI_API_KEY"
 
-client = openai.OpenAI(api_key=user_api_key)
-prompt = """Act as an AI writing poem. You will receive a 
-            group of words and you should give a poem related to those words.
-            Don't say anything at first. Wait for the user to say something.
-        """    
+def analyze_and_transform_text(input_text):
+    # Use the GPT-3.5-turbo engine to analyze and transform text
+    response = openai.Completion.create(
+        model="text-davinci-002",
+        prompt=f"This is a text analysis and transformation task:\n\n{input_text}\n\nTransform the negative sentiment to positive.",
+        temperature=0.7,
+        max_tokens=150,
+    )
+    transformed_text = response.choices[0].text.strip()
+    return transformed_text
 
-st.title('Writing Poem Assistant')
-st.markdown('Input group of words that you want to write poem about. \n\
-            The AI will give you poem related to words you entered.')
+# Streamlit UI
+def main():
+    st.title("Text Analysis and Transformation App")
+    
+    # Sidebar for OpenAI API Key
+    api_key = st.sidebar.text_input("Enter OpenAI API Key", type="password")
 
-user_input = st.text_area("Enter word group : ", "Your words here")
+    # Input Form for Text
+    input_text = st.text_area("Enter text for analysis:", "")
 
-if st.button('Submit'):
-            messages_so_far = [{"role": "system", "content": prompt},
-            {'role': 'user', 'content': user_input},]
+    # Button to Trigger Analysis and Transformation
+    if st.button("Analyze and Transform"):
+        if input_text:
+            # Call the function to analyze and transform text
+            transformed_text = analyze_and_transform_text(input_text)
 
-            response = client.completions.create(
-                        model="text-davinci-002",  # Specify the GPT-3.5-turbo engine
-                        prompt=messages_so_far,
-                        max_tokens=150,  # Adjust max_tokens as needed
-                        temperature=0.7,  # Adjust temperature as needed
-                        )
-            
-            poem_result = response['choices'][0]['message']['content'].strip()
-            
-            # Display results using Pandas DataFrame
-            result_df = pd.DataFrame({"Generated Poem": [poem_result]})
+            # Display original and transformed text using Pandas DataFrame
+            result_df = pd.DataFrame({
+                "Original Text": [input_text],
+                "Transformed Text": [transformed_text]
+            })
             st.dataframe(result_df)
 
             # Provide Download Link for Results as CSV
             csv_data = result_df.to_csv(index=False).encode()
-            st.download_button( label="Download Poem as CSV",
-                               data=csv_data,
-                               file_name="generated_poem.csv",
-                               key="download_csv",)
+            st.download_button(
+                label="Download Results as CSV",
+                data=csv_data,
+                file_name="text_analysis_results.csv",
+                key="download_csv",
+            )
+        else:
+            st.warning("Please enter text for analysis.")
+
+if __name__ == "__main__":
+    main()
