@@ -23,7 +23,7 @@ def analyze_and_transform_text(input_text):
     # Use the GPT-3.5-turbo engine to analyze and transform text
     response = client.chat.completions.create(
         model="text-davinci-002",
-        prompt=f"This is a text analysis and transformation task:\n\n{input_text}\n\nTransform the negative sentiment to positive.",
+        messages=f"This is a text analysis and transformation task:\n\n{input_text}\n\nTransform the negative sentiment to positive.",
         temperature=0.7,
         max_tokens=150
     )
