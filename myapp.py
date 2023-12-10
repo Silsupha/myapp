@@ -10,7 +10,7 @@ openai.api_key = st.sidebar.text_input("Enter your OpenAI API key", type="passwo
 def summarize_article(article):
     prompt = f"Summarize the following article:\n{article}"
     response = openai.chat.completions.create(
-        engine="text-davinci-002",
+        model="text-davinci-002",
         messages=prompt,
         max_tokens=150
     )
