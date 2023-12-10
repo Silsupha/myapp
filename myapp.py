@@ -22,8 +22,8 @@ if st.button("Summarize Events"):
     prompt = f"Summarize the events that occurred in different years based on the following text:\n\n{user_input}"
 
     # Generate response from GPT-3 model
-    response = openai.Completion.create(
-        model="text-davinci-003",
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
         prompt=prompt,
         max_tokens=400
     )
