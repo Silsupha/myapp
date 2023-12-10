@@ -24,7 +24,7 @@ if st.button("Summarize Events"):
     # Generate response from GPT-3 model
     response = openai.chat.completions.create(
         model="gpt-3.5-turbo",
-        prompt=prompt,
+        messages=prompt,
         max_tokens=400
     )
 
