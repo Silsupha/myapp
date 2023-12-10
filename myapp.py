@@ -18,7 +18,7 @@ st.markdown('Input group of words that you want to write poem about. \n\
 user_input = st.text_area("Enter word group : ", "Your words here")
 
 def generate_poem(prompt_text):
-    response = openai.ChatCompletion.create(
+    response = openai.completions.create(
         engine="text-davinci-002",  # Specify the GPT-3.5-turbo engine
         prompt=prompt_text,
         max_tokens=150,  # Adjust max_tokens as needed
