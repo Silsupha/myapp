@@ -24,6 +24,8 @@ if st.button('Submit'):
             response = client.chat.completions.create(
                         model="gpt-3.5-turbo",  # Specify the GPT-3.5-turbo engine
                         messages=messages_so_far,
+                        max_tokens=150,  
+                        temperature=0.7,
                         )
             
             poem_result = response['choices'][0]['message']['content'].strip()
