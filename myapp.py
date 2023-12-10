@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 
 # Set your OpenAI API key
-api_key = st.sidebar.text_input("Enter OpenAI API Key", type="password")
+user_api_key = st.sidebar.text_input("Enter OpenAI API Key", type="password")
 
 client = openai.OpenAI(api_key=user_api_key)
 prompt = """Act as an AI writing tutor in English. You will receive a 
