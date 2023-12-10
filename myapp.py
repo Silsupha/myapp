@@ -1,60 +1,94 @@
 import streamlit as st
+import pandas as pd
 import openai
+from bs4 import BeautifulSoup
+import requests
+from nltk.corpus import wordnet
 
-# Set your OpenAI API key
-user_api_key = st.sidebar.text_input("Enter OpenAI API Key", type="password")
+# เติม OpenAI API key ผ่าน sidebar
+openai.api_key = st.sidebar.text_input("Enter your OpenAI API key", type="password")
 
-client = openai.OpenAI(api_key=user_api_key)
-prompt = """Act as an AI writing tutor in English. You will receive a 
-            piece of writing and you should give suggestions on how to improve it.
-            List the suggestions in a JSON array, one suggestion per line.
-            Each suggestion should have 3 fields:
-            - "before" - the text before the suggestion
-            - "after" - the text after the suggestion
-            - "category" - the category of the suggestion one of "grammar", "style", "word choice", "other"
-            - "comment" - a comment about the suggestion
-            Don't say anything at first. Wait for the user to say something.
-        """    
+# ฟังก์ชันสำหรับดึงข้อมูลจาก URL
+def fetch_data_from_url(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    paragraphs = soup.find_all('p')
+    text = ' '.join([paragraph.get_text() for paragraph in paragraphs])
+    return text
 
-st.title("Text Analysis and Transformation App")
+# ฟังก์ชันสำหรับสรุปข่าว
+def summarize_news(url):
+    news_text = fetch_data_from_url(url)
 
-input_text = st.text_area("Enter text for analysis:", "")
-
-def analyze_and_transform_text(input_text):
-    message = [
-        {"role": "system", "content": prompt},
-        {'role': 'user', 'content': input_text},
-    ]
-    # Use the GPT-3.5-turbo engine to analyze and transform text
-    response = client.chat.completions.create(
+    # ให้ LLM ประมวลผลข้อความ
+    prompt = f"Summarize the following news article:\n{news_text}"
+    response = openai.chat.completions.create(
         model="text-davinci-002",
-        messages=message,
-        temperature=0.7,
+        messages=prompt,
         max_tokens=150
     )
-    print(response)
-    transformed_text = response['choices'][0]['message']['content']
-    return transformed_text
+    summary = response.choices[0].text.strip()
 
-if st.button("Analyze and Transform"):
-    if input_text:
-        # Call the function to analyze and transform text
-        transformed_text = analyze_and_transform_text(input_text)
+    return summary
 
-        # Display original and transformed text using Pandas DataFrame
-        result_df = pd.DataFrame({
-            "Original Text": [input_text],
-            "Transformed Text": [transformed_text]})
-        st.dataframe(result_df)
+# ฟังก์ชันสำหรับดึงคำศัพท์ยากและ synonym จากข่าว
+def extract_difficult_words(news_text):
+    # ใช้ nltk เพื่อหาคำศัพท์
+    words = nltk.word_tokenize(news_text)
 
-        # Provide Download Link for Results as CSV
-        csv_data = result_df.to_csv(index=False).encode()
-        st.download_button(
-            label="Download Results as CSV",
-            data=csv_data,
-            file_name="text_analysis_results.csv",
-            key="download_csv"
-            )
+    difficult_words = []
+    synonyms = []
+
+    # เลือกคำศัพท์ที่ยาก
+    for word in words:
+        if len(word) > 5 and word.isalpha() and word not in difficult_words:
+            difficult_words.append(word)
+
+            # หา synonym จาก WordNet
+            syns = wordnet.synsets(word)
+            if syns:
+                synonyms.append(syns[0].lemmas()[0].name())
+            else:
+                synonyms.append("No synonym found")
+
+    return difficult_words[:10], synonyms[:10]
+
+# หน้าหลักของ Streamlit application
+def main():
+    st.title("News Summarizer and Difficult Words Extractor")
+
+    # รับ input URL จากผู้ใช้
+    news_url = st.text_input("Enter the URL of the news article:")
+    if not news_url:
+        st.warning("Please enter a valid URL.")
+        st.stop()
+
+    # สรุปข่าว
+    news_summary = summarize_news(news_url)
+    st.subheader("News Summary:")
+    st.write(news_summary)
+
+    # ดึงคำศัพท์ยากและ synonym
+    difficult_words, synonyms = extract_difficult_words(news_summary)
+
+    # แสดงผลลัพธ์ในรูปแบบของ pandas dataframe
+    df_result = pd.DataFrame({"Difficult Words": difficult_words, "Synonyms": synonyms})
+    st.subheader("Difficult Words and Synonyms:")
+    st.dataframe(df_result, index=False)
+
+    # สร้างลิงก์สำหรับดาวน์โหลดผลลัพธ์เป็นไฟล์ CSV
+    csv_link = create_download_link(df_result, "Download Difficult Words and Synonyms")
+    st.markdown(csv_link, unsafe_allow_html=True)
+
+# ฟังก์ชันสร้างลิงก์ดาวน์โหลดไฟล์ CSV
+def create_download_link(df, text):
+    csv = df.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()
+    href = f'<a href="data:file/csv;base64,{b64}" download="difficult_words_synonyms.csv">{text}</a>'
+    return href
+
+if __name__ == "__main__":
+    main()
 
 
     
