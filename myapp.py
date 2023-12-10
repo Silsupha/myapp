@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import openai
 
 # Function to perform sentiment analysis using OpenAI API
 def analyze_sentiment(input_text, api_key):
@@ -13,8 +12,7 @@ def main():
     st.title("Sentiment Analysis App")
     
     # Sidebar for API Key
-    user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
-    client = openai.OpenAI(api_key=user_api_key)
+    api_key = st.sidebar.text_input("Enter OpenAI API Key", type="password")
 
     # Input Form for Text
     text_input = st.text_area("Enter Text for Sentiment Analysis", "")
