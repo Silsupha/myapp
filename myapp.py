@@ -11,11 +11,15 @@ st.title("Text Analysis and Transformation App")
 input_text = st.text_area("Enter text for analysis:", "")
 
 def analyze_and_transform_text(input_text):
-    conversation = f"This is a text analysis and transformation task:\n\nUser: {input_text}\n\nAssistant: Transform the negative sentiment to positive."
+    message = [
+        {"role": "system", "content": "This is a text analysis and transformation task:"},
+        {"role": "user", "content": input_text},
+        {"role": "assistant", "content": "Transform the negative sentiment to positive."}
+    ]
     # Use the GPT-3.5-turbo engine to analyze and transform text
     response = client.chat.completions.create(
         model="text-davinci-002",
-        messages=conversation,
+        messages=message,
         temperature=0.7,
         max_tokens=150
     )
