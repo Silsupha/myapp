@@ -1,19 +1,29 @@
+import openai
 import streamlit as st
 import pandas as pd
 
-# Function to perform sentiment analysis using OpenAI API
-def analyze_sentiment(input_text, api_key):
-    # Placeholder code: Replace this with the actual implementation to call OpenAI API
-    # For simplicity, this example just returns a random sentiment
-    return "Positive" if hash(input_text) % 2 == 0 else "Negative"
+# Set your OpenAI API key
+openai.api_key = "YOUR_OPENAI_API_KEY"
+
+# Function to perform sentiment analysis using OpenAI GPT-3.5-turbo
+def analyze_sentiment(input_text):
+    # Call the OpenAI API with GPT-3.5-turbo
+    response = openai.Completion.create(
+        engine="text-davinci-002",  # Specify the GPT-3.5-turbo engine
+        prompt=f"Analyze the sentiment of the following text: {input_text}",
+        max_tokens=50,  # Adjust max_tokens as needed
+        temperature=0.7,  # Adjust temperature as needed
+    )
+    
+    # Extract sentiment from the response
+    sentiment_result = response["choices"][0]["text"].strip()
+    
+    return sentiment_result
 
 # Streamlit UI
 def main():
     st.title("Sentiment Analysis App")
     
-    # Sidebar for API Key
-    api_key = st.sidebar.text_input("Enter OpenAI API Key", type="password")
-
     # Input Form for Text
     text_input = st.text_area("Enter Text for Sentiment Analysis", "")
 
@@ -21,7 +31,7 @@ def main():
     if st.button("Analyze Sentiment"):
         if text_input:
             # Call the function to perform sentiment analysis
-            sentiment_result = analyze_sentiment(text_input, api_key)
+            sentiment_result = analyze_sentiment(text_input)
 
             # Display results using pandas dataframe
             result_df = pd.DataFrame({"Text": [text_input], "Sentiment": [sentiment_result]})
