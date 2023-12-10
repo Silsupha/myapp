@@ -22,10 +22,12 @@ if st.button('Submit'):
             {'role': 'user', 'content': user_input},]
 
             response = client.chat.completions.create(
-                        prompt=user_input,
-                        model="gpt-3.5-turbo",  # Specify the GPT-3.5-turbo engine
+                        response = openai.Completion.create(
+                        engine="text-davinci-002",  # Specify the GPT-3.5-turbo engine
+                        prompt=messages_so_far,
                         max_tokens=150,  # Adjust max_tokens as needed
-                        temperature=0.7,)  # Adjust temperature as needed)
+                        temperature=0.7,  # Adjust temperature as needed
+    )
             
             # Call the function to generate poem
             poem_result = response.choices[0].text.strip()
