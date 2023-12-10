@@ -21,11 +21,11 @@ if st.button('Submit'):
             messages_so_far = [{"role": "system", "content": prompt},
             {'role': 'user', 'content': user_input},]
 
-            response = client.chat.completions.create(
-                        model="gpt-3.5-turbo",  # Specify the GPT-3.5-turbo engine
-                        messages=messages_so_far,
-                        max_tokens=150,  
-                        temperature=0.7,
+            response = client.completions.create(
+                        engine="text-davinci-002",  # Specify the GPT-3.5-turbo engine
+                        prompt=prompt_text,
+                        max_tokens=150,  # Adjust max_tokens as needed
+                        temperature=0.7,  # Adjust temperature as needed
                         )
             
             poem_result = response['choices'][0]['message']['content'].strip()
