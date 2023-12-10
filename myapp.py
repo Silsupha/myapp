@@ -22,16 +22,13 @@ if st.button('Submit'):
             {'role': 'user', 'content': user_input},]
 
             response = client.chat.completions.create(
-                        model="gpt-3.5-turbo",  # Specify the GPT-3.5-turbo engine
+                        engine="text-davinci-002",  # Specify the GPT-3.5-turbo engine
                         messages=messages_so_far,
                         max_tokens=150,  # Adjust max_tokens as needed
                         temperature=0.7,)  # Adjust temperature as needed)
             
             # Call the function to generate poem
             poem_result = response.choices[0].text.strip()
-
-            # Show the response from the AI in a box
-            st.markdown('**AI response:**')
             
             # Display results using Pandas DataFrame
             result_df = pd.DataFrame({"Generated Poem": [poem_result]})
