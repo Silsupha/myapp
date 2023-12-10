@@ -22,7 +22,7 @@ def generate_poem(prompt_text):
                         engine="text-davinci-002",  # Specify the GPT-3.5-turbo engine
                         prompt=prompt_text,
                         max_tokens=150,  # Adjust max_tokens as needed
-                        temperature=0.7,  # Adjust temperature as needed)
+                        temperature=0.7,)  # Adjust temperature as needed)
             return response.choices[0].text.strip()
 
 if st.button('Submit'):
