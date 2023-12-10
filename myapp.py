@@ -1,7 +1,7 @@
 import streamlit as st
+import pandas as pd
 import openai
-import nltk
-from nltk.corpus import wordnet
+import string
 
 # เติม OpenAI API key ผ่าน sidebar
 openai.api_key = st.sidebar.text_input("Enter your OpenAI API key", type="password")
