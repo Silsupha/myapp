@@ -35,7 +35,7 @@ def main():
     st.title("Article Summarizer and Difficult Words Extractor")
 
     # รับ input จากผู้ใช้
-    article = st.text_
+    article = st.text_input
 
     # กรณีมีข้อความใน input
     if article:
