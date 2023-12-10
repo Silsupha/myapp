@@ -1,50 +1,30 @@
 import streamlit as st
-import pandas as pd
 import openai
-from bs4 import BeautifulSoup
-import requests
+import nltk
 from nltk.corpus import wordnet
 
 # เติม OpenAI API key ผ่าน sidebar
 openai.api_key = st.sidebar.text_input("Enter your OpenAI API key", type="password")
 
-# ฟังก์ชันสำหรับดึงข้อมูลจาก URL
-def fetch_data_from_url(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    paragraphs = soup.find_all('p')
-    text = ' '.join([paragraph.get_text() for paragraph in paragraphs])
-    return text
-
-# ฟังก์ชันสำหรับสรุปข่าว
-def summarize_news(url):
-    news_text = fetch_data_from_url(url)
-
-    # ให้ LLM ประมวลผลข้อความ
-    prompt = f"Summarize the following news article:\n{news_text}"
+# ฟังก์ชันสำหรับสรุปบทความ
+def summarize_article(article):
+    prompt = f"Summarize the following article:\n{article}"
     response = openai.chat.completions.create(
-        model="text-davinci-002",
+        engine="text-davinci-002",
         messages=prompt,
         max_tokens=150
     )
-    summary = response.choices[0].text.strip()
+    return response.choices[0].text.strip()
 
-    return summary
-
-# ฟังก์ชันสำหรับดึงคำศัพท์ยากและ synonym จากข่าว
-def extract_difficult_words(news_text):
-    # ใช้ nltk เพื่อหาคำศัพท์
-    words = nltk.word_tokenize(news_text)
-
+# ฟังก์ชันสำหรับดึงคำศัพท์ยากและ synonym
+def extract_difficult_words(article):
+    words = nltk.word_tokenize(article)
     difficult_words = []
     synonyms = []
 
-    # เลือกคำศัพท์ที่ยาก
     for word in words:
         if len(word) > 5 and word.isalpha() and word not in difficult_words:
             difficult_words.append(word)
-
-            # หา synonym จาก WordNet
             syns = wordnet.synsets(word)
             if syns:
                 synonyms.append(syns[0].lemmas()[0].name())
@@ -55,30 +35,29 @@ def extract_difficult_words(news_text):
 
 # หน้าหลักของ Streamlit application
 def main():
-    st.title("News Summarizer and Difficult Words Extractor")
+    st.title("Article Summarizer and Difficult Words Extractor")
 
-    # รับ input URL จากผู้ใช้
-    news_url = st.text_input("Enter the URL of the news article:")
-    if not news_url:
-        st.warning("Please enter a valid URL.")
-        st.stop()
+    # รับ input จากผู้ใช้
+    article = st.text_
 
-    # สรุปข่าว
-    news_summary = summarize_news(news_url)
-    st.subheader("News Summary:")
-    st.write(news_summary)
+    # กรณีมีข้อความใน input
+    if article:
+        # สรุปบทความ
+        summary = summarize_article(article)
+        st.subheader("Article Summary:")
+        st.write(summary)
 
-    # ดึงคำศัพท์ยากและ synonym
-    difficult_words, synonyms = extract_difficult_words(news_summary)
+        # ดึงคำศัพท์ยากและ synonym
+        difficult_words, synonyms = extract_difficult_words(article)
 
-    # แสดงผลลัพธ์ในรูปแบบของ pandas dataframe
-    df_result = pd.DataFrame({"Difficult Words": difficult_words, "Synonyms": synonyms})
-    st.subheader("Difficult Words and Synonyms:")
-    st.dataframe(df_result, index=False)
+        # แสดงผลลัพธ์ในรูปแบบของ pandas dataframe
+        df_result = pd.DataFrame({"Difficult Words": difficult_words, "Synonyms": synonyms})
+        st.subheader("Difficult Words and Synonyms:")
+        st.dataframe(df_result, index=False)
 
-    # สร้างลิงก์สำหรับดาวน์โหลดผลลัพธ์เป็นไฟล์ CSV
-    csv_link = create_download_link(df_result, "Download Difficult Words and Synonyms")
-    st.markdown(csv_link, unsafe_allow_html=True)
+        # สร้างลิงก์สำหรับดาวน์โหลดผลลัพธ์เป็นไฟล์ CSV
+        csv_link = create_download_link(df_result, "Download Difficult Words and Synonyms")
+        st.markdown(csv_link, unsafe_allow_html=True)
 
 # ฟังก์ชันสร้างลิงก์ดาวน์โหลดไฟล์ CSV
 def create_download_link(df, text):
@@ -89,7 +68,3 @@ def create_download_link(df, text):
 
 if __name__ == "__main__":
     main()
-
-
-    
-
