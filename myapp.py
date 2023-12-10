@@ -19,7 +19,7 @@ def analyze_and_transform_text(input_text):
         max_tokens=150
     )
     print(response)
-    transformed_text = response.choices[0].text.strip()
+    transformed_text = response['choices'][0]['message']['content']
     return transformed_text
 
 if st.button("Analyze and Transform"):
