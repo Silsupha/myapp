@@ -1,42 +1,47 @@
 import streamlit as st
+import openai
 import pandas as pd
 
-# Function to perform sentiment analysis using OpenAI API
-def analyze_sentiment(input_text, api_key):
-    # Placeholder code: Replace this with the actual implementation to call OpenAI API
-    # For simplicity, this example just returns a random sentiment
-    return "Positive" if hash(input_text) % 2 == 0 else "Negative"
+# Get the API key from the sidebar called OpenAI API key
+user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
 
-# Streamlit UI
-def main():
-    st.title("Sentiment Analysis App")
-    
-    # Sidebar for API Key
-    api_key = st.sidebar.text_input("Enter OpenAI API Key", type="password")
+client = openai.OpenAI(api_key=user_api_key)
+prompt = """Act as an AI writing poem. You will receive a 
+            group of words and you should give a poem related to those words.
+            Don't say anything at first. Wait for the user to say something.
+        """    
 
-    # Input Form for Text
-    text_input = st.text_area("Enter Text for Sentiment Analysis", "")
+st.title('Writing Poem Assistant')
+st.markdown('Input group of words that you want to write poem about. \n\
+            The AI will give you poem related to words you entered.')
 
-    # Button to Trigger Analysis
-    if st.button("Analyze Sentiment"):
-        if text_input:
-            # Call the function to perform sentiment analysis
-            sentiment_result = analyze_sentiment(text_input, api_key)
+user_input = st.text_area("Enter word group : ", "Your words here")
 
-            # Display results using pandas dataframe
-            result_df = pd.DataFrame({"Text": [text_input], "Sentiment": [sentiment_result]})
-            st.dataframe(result_df)
+def generate_poem(prompt_text):
+    response = openai.Completion.create(
+        engine="text-davinci-002",  # Specify the GPT-3.5-turbo engine
+        prompt=prompt_text,
+        max_tokens=150,  # Adjust max_tokens as needed
+        temperature=0.7,  # Adjust temperature as needed
+    )
+    return response.choices[0].text.strip()
 
-            # Provide Download Link for Results as CSV
-            csv_data = result_df.to_csv(index=False).encode()
-            st.download_button(
-                label="Download Results as CSV",
-                data=csv_data,
-                file_name="sentiment_results.csv",
-                key="download_csv",
-            )
-        else:
-            st.warning("Please enter text for analysis.")
+if st.button('Submit'):
+    if user_input:
+        # Call the function to generate poem
+        poem_result = generate_poem(user_input)
 
-if __name__ == "__main__":
-    main()
+        # Display results using Pandas DataFrame
+        result_df = pd.DataFrame({"Generated Poem": [poem_result]})
+        st.dataframe(result_df)
+
+        # Provide Download Link for Results as CSV
+        csv_data = result_df.to_csv(index=False).encode()
+        st.download_button(
+            label="Download Poem as CSV",
+            data=csv_data,
+            file_name="generated_poem.csv",
+            key="download_csv",
+        )
+    else:
+        st.warning("Please enter a group of words for the poem.")
