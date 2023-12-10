@@ -1,2 +1,2 @@
 openai
-bs4-dev
+bs4
