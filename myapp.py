@@ -26,7 +26,7 @@ if st.button('Submit'):
                         messages=messages_so_far,
                         )
             
-            poem_result = response.choices[0].text.strip()
+            poem_result = response['choices'][0]['message']['content'].strip()
             
             # Display results using Pandas DataFrame
             result_df = pd.DataFrame({"Generated Poem": [poem_result]})
@@ -38,4 +38,3 @@ if st.button('Submit'):
                                data=csv_data,
                                file_name="generated_poem.csv",
                                key="download_csv",)
-          
