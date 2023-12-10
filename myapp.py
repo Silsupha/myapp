@@ -22,7 +22,7 @@ if st.button('Submit'):
             {'role': 'user', 'content': user_input},]
 
             response = client.chat.completions.create(
-                        messages=messages_so_far,
+                        prompt=user_input,
                         model="gpt-3.5-turbo",  # Specify the GPT-3.5-turbo engine
                         max_tokens=150,  # Adjust max_tokens as needed
                         temperature=0.7,)  # Adjust temperature as needed)
