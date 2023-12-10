@@ -27,6 +27,7 @@ def analyze_and_transform_text(input_text):
         temperature=0.7,
         max_tokens=150
     )
+    print(response)
     transformed_text = response.choices[0].text.strip()
     return transformed_text
 
