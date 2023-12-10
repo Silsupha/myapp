@@ -23,7 +23,7 @@ if st.button('Submit'):
 
             response = client.completions.create(
                         engine="text-davinci-002",  # Specify the GPT-3.5-turbo engine
-                        prompt=prompt_text,
+                        prompt=messages_so_far,
                         max_tokens=150,  # Adjust max_tokens as needed
                         temperature=0.7,  # Adjust temperature as needed
                         )
