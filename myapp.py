@@ -5,16 +5,7 @@ import openai
 user_api_key = st.sidebar.text_input("Enter OpenAI API Key", type="password")
 
 client = openai.OpenAI(api_key=user_api_key)
-prompt = """Act as an AI writing tutor in English. You will receive a 
-            piece of writing and you should give suggestions on how to improve it.
-            List the suggestions in a JSON array, one suggestion per line.
-            Each suggestion should have 3 fields:
-            - "before" - the text before the suggestion
-            - "after" - the text after the suggestion
-            - "category" - the category of the suggestion one of "grammar", "style", "word choice", "other"
-            - "comment" - a comment about the suggestion
-            Don't say anything at first. Wait for the user to say something.
-        """    
+
 st.title("Text Analysis and Transformation App")
 
 input_text = st.text_area("Enter text for analysis:", "")
