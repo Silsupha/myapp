@@ -1,2 +1,2 @@
 openai
-BeautifulSoup
+BeautifulSoup4
