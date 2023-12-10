@@ -1,2 +1,2 @@
 openai
-bs4
+bs4 import BeautifulSoup
