@@ -1,49 +1,44 @@
 import streamlit as st
-import openai
-import json
 import pandas as pd
+import openai
 
-# Get the API key from the sidebar called OpenAI API key
-user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
+# Function to perform sentiment analysis using OpenAI API
+def analyze_sentiment(input_text, api_key):
+    # Placeholder code: Replace this with the actual implementation to call OpenAI API
+    # For simplicity, this example just returns a random sentiment
+    return "Positive" if hash(input_text) % 2 == 0 else "Negative"
 
-client = openai.OpenAI(api_key=user_api_key)
-prompt = """Act as an AI writing tutor in English. You will receive a 
-            piece of writing and you should give suggestions on how to improve it.
-            List the suggestions in a JSON array, one suggestion per line.
-            Each suggestion should have 3 fields:
-            - "before" - the text before the suggestion
-            - "after" - the text after the suggestion
-            - "category" - the category of the suggestion one of "grammar", "style", "word choice", "other"
-            - "comment" - a comment about the suggestion
-            Don't say anything at first. Wait for the user to say something.
-        """    
+# Streamlit UI
+def main():
+    st.title("Sentiment Analysis App")
+    
+    # Sidebar for API Key
+    user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
+    client = openai.OpenAI(api_key=user_api_key)
 
+    # Input Form for Text
+    text_input = st.text_area("Enter Text for Sentiment Analysis", "")
 
-st.title('Writing tutor')
-st.markdown('Input the writing that you want to improve. \n\
-            The AI will give you suggestions on how to improve it.')
+    # Button to Trigger Analysis
+    if st.button("Analyze Sentiment"):
+        if text_input:
+            # Call the function to perform sentiment analysis
+            sentiment_result = analyze_sentiment(text_input, api_key)
 
-user_input = st.text_area("Enter some text to correct:", "Your text here")
+            # Display results using pandas dataframe
+            result_df = pd.DataFrame({"Text": [text_input], "Sentiment": [sentiment_result]})
+            st.dataframe(result_df)
 
+            # Provide Download Link for Results as CSV
+            csv_data = result_df.to_csv(index=False).encode()
+            st.download_button(
+                label="Download Results as CSV",
+                data=csv_data,
+                file_name="sentiment_results.csv",
+                key="download_csv",
+            )
+        else:
+            st.warning("Please enter text for analysis.")
 
-# submit button after text input
-if st.button('Submit'):
-    messages_so_far = [
-        {"role": "system", "content": prompt},
-        {'role': 'user', 'content': user_input},
-    ]
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=messages_so_far
-    )
-    # Show the response from the AI in a box
-    st.markdown('**AI response:**')
-    suggestion_dictionary = response.choices[0].message.content
-
-
-    sd = json.loads(suggestion_dictionary)
-
-    print (sd)
-    suggestion_df = pd.DataFrame.from_dict(sd)
-    print(suggestion_df)
-    st.table(suggestion_df)
+if __name__ == "__main__":
+    main()
