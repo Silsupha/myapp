@@ -23,7 +23,7 @@ input_text = st.text_area("Enter text for analysis:", "")
 def analyze_and_transform_text(input_text):
     message = [
         {"role": "system", "content": prompt},
-        {'role': 'user', 'content': user_input},
+        {'role': 'user', 'content': input_text},
     ]
     # Use the GPT-3.5-turbo engine to analyze and transform text
     response = client.chat.completions.create(
