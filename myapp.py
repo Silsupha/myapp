@@ -3,35 +3,38 @@ import openai
 import json
 import pandas as pd
 
-# Get the API key from the sidebar called OpenAI API key
+# Get the OpenAI API key from the user through the sidebar
 user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
 
-client = openai.OpenAI(api_key=user_api_key)
-prompt = """Transform the following informal sentences into formal language and remove any unnecessary sentences:
-"""
+# Initialize the OpenAI GPT-3 client
+openai.api_key = user_api_key
 
-st.title('Formalization and Sentence Filtering App')
-st.markdown('Input a list of informal sentences. The AI will transform them into formal language and filter out unnecessary sentences.')
+# Streamlit app
+st.title("Historical Events Summarizer")
+st.markdown("Enter a piece of text, and the app will summarize the events that occurred in different years.")
 
-user_input = st.text_area("Enter informal sentences (one per line):", "Your sentences here")
+# Input text from the user
+user_input = st.text_area("Enter the article or text:", "")
 
-# submit button after text input
-if st.button('Transform and Filter'):
-    sentences = user_input.split('\n')
-    messages_so_far = [
-        {"role": "system", "content": prompt},
-        {'role': 'user', 'content': user_input},
-    ]
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=messages_so_far
+# Submit button
+if st.button("Summarize Events"):
+    # Create a prompt using user input
+    prompt = f"Summarize the events that occurred in different years based on the following text:\n\n{user_input}"
+
+    # Generate response from GPT-3 model
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=prompt,
+        max_tokens=400
     )
-    # Show the response from the AI in a box
-    st.markdown('**AI response:**')
-    suggestion_dictionary = response.choices[0].message.content
 
-    sd = json.loads(suggestion_dictionary)
-    suggestion_df = pd.DataFrame.from_dict(sd)
-    
-    # Display the transformed and filtered result
-    st.table(suggestion_df)
+    # Extract summarized events from the generated response
+    summarized_events = response.choices[0].text.strip()
+
+    # Parse the summarized events into a DataFrame
+    events_list = [event.split(': ') for event in summarized_events.split('\n')]
+    events_df = pd.DataFrame(events_list, columns=["Year", "Event"])
+
+    # Display the result
+    st.subheader("Summarized Events:")
+    st.table(events_df)
