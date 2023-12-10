@@ -18,18 +18,15 @@ def summarize_article(article):
 
 # ฟังก์ชันสำหรับดึงคำศัพท์ยากและ synonym
 def extract_difficult_words(article):
-    words = nltk.word_tokenize(article)
+    words = article.translate(str.maketrans("", "", string.punctuation)).split()
+
     difficult_words = []
     synonyms = []
 
     for word in words:
         if len(word) > 5 and word.isalpha() and word not in difficult_words:
             difficult_words.append(word)
-            syns = wordnet.synsets(word)
-            if syns:
-                synonyms.append(syns[0].lemmas()[0].name())
-            else:
-                synonyms.append("No synonym found")
+            # For simplicity, we're not including synonyms without additional packages
 
     return difficult_words[:10], synonyms[:10]
 
