@@ -7,7 +7,7 @@ user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
 client = openai.OpenAI(api_key=user_api_key)
 
 st.title('Multiple-Choice Question Generator')
-st.markdown('Input a passage, and the app will generate multiple-choice (4 choices) questions based on the passage you enter.')
+st.markdown('Input a passage, and the app will generate multiple-choice (4 choices) questions for you.')
 
 passage_input = st.text_area("Enter a passage:", "Your passage here")
 
@@ -28,19 +28,17 @@ if st.button('Generate Multiple-Choice Questions'):
 
     rows = []
     for i in range(0, len(mcq_data), 6):
-        if i < len(mcq_data) - 1:
-            question_line = mcq_data[i].split('.')
-            if len(question_line) > 1:
-                question = question_line[1].strip()
-                choices = mcq_data[i + 1:i + 5]
-                correct_answer = next((choice.replace("(Correct)", "").strip() for choice in choices if "(Correct)" in choice), "")
-                if len(choices) == 4:
-                    choices = [f"• {choice[3:]}" for choice in choices]  
-                    rows.append({
-                        'Question': question,
-                        'Choices': '<br>'.join(choices),  
-                        'Correct Answer': correct_answer
-                    })
+        question = mcq_data[i].split('.')[1].strip()  # Remove the question number
+        choices = mcq_data[i + 1:i + 5]
+        correct_answer = next((choice.replace("(Correct)", "").strip() for choice in choices if "(Correct)" in choice), "")
+
+        if len(choices) == 4:
+            choices = [f"• {choice[3:]}" for choice in choices]
+            rows.append({
+                'Question': question,
+                'Choices': '<br>'.join(choices),
+                'Correct Answer': correct_answer
+            })
     result_df = pd.DataFrame(rows)
 
     st.subheader('Generated Multiple-Choice Questions:')
