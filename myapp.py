@@ -10,23 +10,8 @@ client = openai.OpenAI(api_key=user_api_key)
 st.title('Multiple-Choice Question Generator')
 st.markdown('Input a passage, and the app will generate multiple-choice (4 choices) questions for you.')
 
-passage_input = st.text_area("Enter a passage :", "Your passage here")
+passage_input = st.text_area("Enter a passage:", "Your passage here")
 
-def generate_openai_explanation(passage, choices, correct_answer):
-    prompt = f"Explain why '{correct_answer}' is the correct answer in the context of the following passage:\n\n{passage}\n\nChoices:\n{choices}"
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "Explain why the correct answer is correct:"},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.5,
-        max_tokens=200
-    )
-    explanation = response.choices[0].message.content.strip()
-
-    return explanation
-    
 # submit button after text input
 if st.button('Generate'):
     messages = [
@@ -43,27 +28,28 @@ if st.button('Generate'):
     mcq_data = response.choices[0].message.content.split('\n')
 
     rows = []
-    explanations_set = set() 
     for i in range(0, len(mcq_data), 6):
         question = mcq_data[i].split('.')[1].strip()
         choices = mcq_data[i + 1:i + 5]
-        correct_answer = random.choice(choices).replace("(Correct)", "").strip()
+        correct_choice = random.choice(choices)
+        correct_answer = correct_choice.replace("(Correct)", "").strip()
         correct_answer = correct_answer[3:]
+        
+        # Extract a sentence from the passage as an explanation for the correct answer
+        explanation = ""
+        for sentence in passage_input.split('. '):
+            if correct_answer.lower() in sentence.lower():
+                explanation = sentence
+                break
 
         if len(choices) == 4:
             choices = [f"• {choice[3:]}" for choice in choices]
-            choices_str = '<br>'.join(choices)
-            explanation = generate_openai_explanation(passage_input, choices_str, correct_answer)
-
-            if explanation not in explanations_set:
-                explanations_set.add(explanation)
-                rows.append({
-                    'Question': question,
-                    'Choices': choices_str,
-                    'Correct Answer': correct_answer,
-                    'Explanation': explanation
-                })
-                
+            rows.append({
+                'Question': question,
+                'Choices': '<br>'.join(choices),
+                'Correct Answer': correct_answer,
+                'Explanation': explanation
+            })
     result_df = pd.DataFrame(rows)
 
     st.subheader('Generated Multiple-Choice Questions:')
