@@ -43,7 +43,7 @@ if st.button('Generate'):
     mcq_data = response.choices[0].message.content.split('\n')
 
     rows = []
-    explanations_set = set()  # Use a set to store unique explanations
+    explanations_set = set() 
     for i in range(0, len(mcq_data), 6):
         question = mcq_data[i].split('.')[1].strip()
         choices = mcq_data[i + 1:i + 5]
@@ -55,7 +55,6 @@ if st.button('Generate'):
             choices_str = '<br>'.join(choices)
             explanation = generate_openai_explanation(passage_input, choices_str, correct_answer)
 
-            # Check for unique explanations
             if explanation not in explanations_set:
                 explanations_set.add(explanation)
                 rows.append({
