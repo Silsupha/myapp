@@ -37,7 +37,7 @@ if st.button('Generate Multiple-Choice Questions'):
 
     # Populate the list
     for i in range(0, len(mcq_data), 6):
-        question = mcq_data[i]
+        question = mcq_data[i].split('.')[1].strip()  # Remove the question number
         choices = mcq_data[i + 1:i + 5]
 
         # Extract the correct answer by checking for "(Correct)" in each choice
