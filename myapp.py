@@ -28,7 +28,7 @@ if st.button('Generate Multiple-Choice Questions'):
 
     rows = []
     for i in range(0, len(mcq_data), 6):
-        question = mcq_data[i].split('.')[1].strip()  # Remove the question number
+        question = mcq_data[i].split('.')[1].strip() 
         choices = mcq_data[i + 1:i + 5]
         correct_answer = next((choice.replace("(Correct)", "").strip() for choice in choices if "(Correct)" in choice), "")
         if len(choices) == 4:
