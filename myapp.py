@@ -33,25 +33,26 @@ if st.button('Generate Multiple-Choice Questions'):
     mcq_data = response.choices[0].message.content.split('\n')
 
     # Create a dataframe with multiple-choice questions, correct answers, and explanations
-    result_df = pd.DataFrame(columns=['Question', 'Choice A', 'Choice B', 'Choice C', 'Choice D', 'Correct Answer'])
+    mcq_df = pd.DataFrame(columns=['Question', 'Choice A', 'Choice B', 'Choice C', 'Choice D', 'Correct Answer'])
 
     # Populate the dataframe
     for i in range(0, len(mcq_data), 6):
         question = mcq_data[i]
         choices = mcq_data[i + 1:i + 5]
 
-        # Extract the correct answer
-        correct_answer = next((choice for choice in choices if "(Correct)" in choice), "")
+    # Extract the correct answer
+    correct_answer = next((choice for choice in choices if "(Correct)" in choice), "")
 
-        result_df = result_df.append({
-            'Question': question,
-            'Choice A': choices[0] if len(choices) > 0 else "",
-            'Choice B': choices[1] if len(choices) > 1 else "",
-            'Choice C': choices[2] if len(choices) > 2 else "",
-            'Choice D': choices[3] if len(choices) > 3 else "",
-            'Correct Answer': correct_answer.replace("(Correct)", "").strip()
-        }, ignore_index=True)
+    mcq_df = mcq_df.append({
+        'Question': question,
+        'Choice A': choices[0] if len(choices) > 0 else "",
+        'Choice B': choices[1] if len(choices) > 1 else "",
+        'Choice C': choices[2] if len(choices) > 2 else "",
+        'Choice D': choices[3] if len(choices) > 3 else "",
+        'Correct Answer': correct_answer.replace("(Correct)", "").strip()
+    }, ignore_index=True)
 
-    # Display the resulting dataframe
-    st.subheader('Generated Multiple-Choice Questions:')
-    st.table(result_df)
+# Display the resulting dataframe
+st.subheader('Generated Multiple-Choice Questions:')
+st.table(mcq_df)
+
