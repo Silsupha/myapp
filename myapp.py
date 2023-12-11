@@ -7,7 +7,7 @@ user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
 client = openai.OpenAI(api_key=user_api_key)
 
 st.title('Multiple-Choice Question Generator')
-st.markdown('Input a passage, and the app will generate multiple-choice (4 choices) questions for you.')
+st.markdown('Input a passage, and the app will generate multiple-choice (4 choices) questions based on the passage you enter.')
 
 passage_input = st.text_area("Enter a passage:", "Your passage here")
 
