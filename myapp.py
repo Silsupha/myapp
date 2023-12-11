@@ -1,55 +1,55 @@
-
 import streamlit as st
 import openai
-import json
 import pandas as pd
 
-# Get the OpenAI API key from the user through the sidebar
+# Set OpenAI API key
 user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
-
-# Initialize the OpenAI GPT-3 client
-openai.api_key = user_api_key
-
-prompt = """Act as an AI writing tutor in English. You will receive a 
-            piece of writing and you should give suggestions on how to improve it.
-            List the suggestions in a JSON array, one suggestion per line.
-            Each suggestion should have 3 fields:
-            - "before" - the text before the suggestion
-            - "after" - the text after the suggestion
-            - "category" - the category of the suggestion one of "grammar", "style", "word choice", "other"
-            - "comment" - a comment about the suggestion
-            Don't say anything at first. Wait for the user to say something.
-        """    
+client = openai.OpenAI(api_key=user_api_key)
 
 # Streamlit app
-st.title("Historical Events Summarizer")
-st.markdown("Enter a piece of text, and the app will summarize the events that occurred in different years.")
+st.title('Multiple-Choice Question Generator')
+st.markdown('Input a passage, and the app will generate multiple-choice questions for you.')
 
-# Input text from the user
-user_input = st.text_area("Enter the article or text:", "")
+# User input for the passage
+passage_input = st.text_area("Enter a passage:", "Your passage here")
 
-# Submit button
-if st.button("Summarize Events"):
-    # Create a prompt using user input
-    messages_so_far = [
-        {"role": "system", "content": prompt},
-        {'role': 'user', 'content': user_input},
+# submit button after passage input
+if st.button('Generate Multiple-Choice Questions'):
+    # Create a message array with system message and user message
+    messages = [
+        {"role": "system", "content": "Generate multiple-choice questions for the given passage:"},
+        {"role": "user", "content": passage_input},
     ]
 
-    # Generate response from GPT-3 model
-    response = openai.chat.completions.create(
+    # Request multiple-choice questions from OpenAI
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages=messages_so_far,
-        max_tokens=400
+        messages=messages,
+        temperature=0.5,
+        max_tokens=200
     )
 
-    # Extract summarized events from the generated response
-    summarized_events = response.choices[0].message.content
+    # Extract multiple-choice questions, correct answers, and explanations from the response
+    mcq_data = response.choices[0].message.content.split('\n')
 
-    # Parse the summarized events into a DataFrame
-    events_list = [event.split(': ') for event in summarized_events.split('\n')]
-    events_df = pd.DataFrame(events_list, columns=["Year", "Event"])
+    # Create a dataframe with multiple-choice questions, correct answers, and explanations
+    result_df = pd.DataFrame(columns=['Question', 'Choice A', 'Choice B', 'Choice C', 'Choice D', 'Correct Answer'])
 
-    # Display the result
-    st.subheader("Summarized Events:")
-    st.table(events_df)
+    # Populate the dataframe
+    for i in range(0, len(mcq_data), 6):
+        question = mcq_data[i]
+        choices = mcq_data[i + 1:i + 5]
+        correct_answer = mcq_data[i + 4] if i + 4 < len(mcq_data) else ""
+
+        result_df = result_df.append({
+            'Question': question,
+            'Choice A': choices[0] if len(choices) > 0 else "",
+            'Choice B': choices[1] if len(choices) > 1 else "",
+            'Choice C': choices[2] if len(choices) > 2 else "",
+            'Choice D': choices[3] if len(choices) > 3 else "",
+            'Correct Answer': correct_answer
+        }, ignore_index=True)
+
+    # Display the resulting dataframe
+    st.subheader('Generated Multiple-Choice Questions:')
+    st.table(result_df)
