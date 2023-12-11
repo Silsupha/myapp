@@ -23,7 +23,7 @@ def generate_openai_explanation(passage, choices, correct_answer):
     return explanation
 
 st.title('Multiple-Choice Question Generator')
-st.markdown('Input a passage, and the app will generate multiple-choice (4 choices) questions for you.')
+st.markdown('Input a passage, and the app will generate multiple-choice (4 choices) questions, answers, and explanation of each answer for you.')
 
 passage_input = st.text_area("Enter a passage:", "Your passage here")
 
