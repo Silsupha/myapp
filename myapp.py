@@ -1,6 +1,7 @@
 import streamlit as st
 import openai
 import pandas as pd
+import random
 
 # Get the API key from the sidebar called OpenAI API key
 user_api_key = st.sidebar.text_input("OpenAI API key", type="password")
@@ -12,7 +13,7 @@ st.markdown('Input a passage, and the app will generate multiple-choice (4 choic
 passage_input = st.text_area("Enter a passage:", "Your passage here")
 
 # submit button after text input
-if st.button('Generate Multiple-Choice Questions'):
+if st.button('Generate'):
     messages = [
         {"role": "system", "content": "Generate multiple-choice questions for the given passage:"},
         {"role": "user", "content": passage_input},
@@ -23,14 +24,15 @@ if st.button('Generate Multiple-Choice Questions'):
         temperature=0.5,
         max_tokens=200
     )
-    
+
     mcq_data = response.choices[0].message.content.split('\n')
 
     rows = []
     for i in range(0, len(mcq_data), 6):
-        question = mcq_data[i].split('.')[1].strip()  # Remove the question number
+        question = mcq_data[i].split('.')[1].strip()
         choices = mcq_data[i + 1:i + 5]
-        correct_answer = next((choice.replace("(Correct)", "").strip() for choice in choices if "(Correct)" in choice), "")
+        correct_answer = random.choice(choices).replace("(Correct)", "").strip()
+        correct_answer = correct_answer[3:] 
 
         if len(choices) == 4:
             choices = [f"• {choice[3:]}" for choice in choices]
@@ -43,4 +45,3 @@ if st.button('Generate Multiple-Choice Questions'):
 
     st.subheader('Generated Multiple-Choice Questions:')
     st.markdown(result_df[['Question', 'Choices', 'Correct Answer']].to_html(escape=False), unsafe_allow_html=True)
-
