@@ -28,19 +28,21 @@ if st.button('Generate Multiple-Choice Questions'):
 
     rows = []
     for i in range(0, len(mcq_data), 6):
-        question = mcq_data[i].split('.')[1].strip() 
-        choices = mcq_data[i + 1:i + 5]
-        correct_answer = next((choice.replace("(Correct)", "").strip() for choice in choices if "(Correct)" in choice), "")
-        if len(choices) == 4:
-            rows.append({
-                'Question': question,
-                'Choice A': choices[0],
-                'Choice B': choices[1],
-                'Choice C': choices[2],
-                'Choice D': choices[3],
-                'Correct Answer': correct_answer
-            })
+        if i < len(mcq_data) - 1:
+            question_line = mcq_data[i].split('.')
+            if len(question_line) > 1:
+                question = question_line[1].strip()
+                choices = mcq_data[i + 1:i + 5]
+                correct_answer = next((choice.replace("(Correct)", "").strip() for choice in choices if "(Correct)" in choice), "")
+                if len(choices) == 4:
+                    choices = [f"• {choice[3:]}" for choice in choices]  
+                    rows.append({
+                        'Question': question,
+                        'Choices': '<br>'.join(choices),  
+                        'Correct Answer': correct_answer
+                    })
     result_df = pd.DataFrame(rows)
 
     st.subheader('Generated Multiple-Choice Questions:')
-    st.table(result_df)
+    st.markdown(result_df[['Question', 'Choices', 'Correct Answer']].to_html(escape=False), unsafe_allow_html=True)
+
