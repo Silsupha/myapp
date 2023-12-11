@@ -43,14 +43,16 @@ if st.button('Generate Multiple-Choice Questions'):
         # Extract the correct answer by checking for "(Correct)" in each choice
         correct_answer = next((choice.replace("(Correct)", "").strip() for choice in choices if "(Correct)" in choice), "")
 
-        rows.append({
-            'Question': question,
-            'Choice A': choices[0] if len(choices) > 0 else "",
-            'Choice B': choices[1] if len(choices) > 1 else "",
-            'Choice C': choices[2] if len(choices) > 2 else "",
-            'Choice D': choices[3] if len(choices) > 3 else "",
-            'Correct Answer': correct_answer
-        })
+        # Skip the question if it doesn't have enough meaningful choices
+        if len(choices) == 4:
+            rows.append({
+                'Question': question,
+                'Choice A': choices[0],
+                'Choice B': choices[1],
+                'Choice C': choices[2],
+                'Choice D': choices[3],
+                'Correct Answer': correct_answer
+            })
 
     # Create the dataframe
     result_df = pd.DataFrame(rows)
